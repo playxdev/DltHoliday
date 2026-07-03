@@ -53,8 +53,8 @@ export async function createSession(username: string): Promise<string> {
     const cookieStore = await cookies();
     cookieStore.set(JWT_COOKIE, token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: true,
+      sameSite: process.env.CORS_ORIGIN ? "none" : "lax",
       path: "/",
       maxAge: 8 * 60 * 60,
     });
@@ -107,8 +107,8 @@ export async function destroySession(): Promise<void> {
     const cookieStore = await cookies();
     cookieStore.set(JWT_COOKIE, "", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: true,
+      sameSite: process.env.CORS_ORIGIN ? "none" : "lax",
       path: "/",
       maxAge: 0,
     });
