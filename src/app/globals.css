@@ -1,0 +1,411 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   AAAADMIN Design System — Color Tokens
+   ============================================================ */
+
+:root {
+  --bg-body: #f1f5f9;
+  --bg-surface: #ffffff;
+  --bg-hover: #f8fafc;
+  --bg-input: #ffffff;
+  --bg-tab: #f8fafc;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --border: #e2e8f0;
+  --border-light: #f1f5f9;
+  --shadow: rgba(0, 0, 0, 0.06);
+  --modal-overlay: rgba(0, 0, 0, 0.5);
+
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --accent-light: rgba(59, 130, 246, 0.1);
+  --danger: #ef4444;
+  --danger-hover: #dc2626;
+  --success-bg: #d1fae5;
+  --success-text: #065f46;
+  --warning-bg: #fef3c7;
+  --warning-text: #92400e;
+  --info-bg: #dbeafe;
+  --info-text: #1e40af;
+  --badge-neutral-bg: #f1f5f9;
+  --badge-neutral-text: #475569;
+}
+
+[data-theme="dark"] {
+  --bg-body: #0b1120;
+  --bg-surface: #0f172a;
+  --bg-hover: #1e293b;
+  --bg-input: #1e293b;
+  --bg-tab: #1e293b;
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border: #1e293b;
+  --border-light: #1a2332;
+  --shadow: rgba(0, 0, 0, 0.3);
+  --modal-overlay: rgba(0, 0, 0, 0.7);
+
+  --accent: #60a5fa;
+  --accent-hover: #3b82f6;
+  --accent-light: rgba(96, 165, 250, 0.1);
+  --danger: #f87171;
+  --danger-hover: #ef4444;
+  --success-bg: rgba(52, 211, 153, 0.15);
+  --success-text: #34d399;
+  --warning-bg: rgba(251, 191, 36, 0.15);
+  --warning-text: #fbbf24;
+  --info-bg: rgba(96, 165, 250, 0.15);
+  --info-text: #60a5fa;
+  --badge-neutral-bg: #1e293b;
+  --badge-neutral-text: #94a3b8;
+}
+
+/* ============================================================
+   Global Transitions & Resets
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  transition:
+    background-color 0.3s ease,
+    color 0.2s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+body {
+  background: var(--bg-body);
+  color: var(--text-primary);
+  font-family: "Google Sans", system-ui, -apple-system, sans-serif;
+}
+
+::selection {
+  background-color: var(--accent);
+  color: white;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ============================================================
+   Scrollbar
+   ============================================================ */
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #94a3b8 transparent;
+  }
+}
+
+/* ============================================================
+   Component Classes — Buttons
+   ============================================================ */
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium;
+    @apply transition-colors duration-200;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+  }
+  .btn-primary:hover {
+    background: var(--accent-hover);
+  }
+
+  .btn-danger {
+    background: var(--danger);
+    color: white;
+  }
+  .btn-danger:hover {
+    background: var(--danger-hover);
+  }
+
+  .btn-secondary {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover {
+    background: var(--border);
+  }
+
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+}
+
+/* ============================================================
+   Component Classes — Badges
+   ============================================================ */
+
+@layer components {
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2 py-px text-[11px] font-semibold leading-tight;
+  }
+
+  .badge-success {
+    background: var(--success-bg);
+    color: var(--success-text);
+  }
+
+  .badge-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+  }
+  [data-theme="dark"] .badge-danger {
+    background: rgba(248, 113, 113, 0.15);
+    color: #f87171;
+  }
+
+  .badge-warning {
+    background: var(--warning-bg);
+    color: var(--warning-text);
+  }
+
+  .badge-info {
+    background: var(--info-bg);
+    color: var(--info-text);
+  }
+
+  .badge-neutral {
+    background: var(--badge-neutral-bg);
+    color: var(--badge-neutral-text);
+  }
+}
+
+/* ============================================================
+   Component Classes — Data Table
+   ============================================================ */
+
+@layer components {
+  .table-container {
+    @apply overflow-x-auto;
+  }
+
+  .data-table {
+    @apply w-full border-collapse;
+  }
+
+  .data-table thead tr {
+    background: var(--bg-hover);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .data-table th {
+    @apply px-3 py-1.5 text-left text-[11px] font-semibold uppercase tracking-wide;
+    color: var(--text-muted);
+    line-height: 1.2;
+  }
+
+  .data-table tbody tr {
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .data-table tbody tr:hover {
+    background: var(--bg-hover);
+  }
+
+  .data-table td {
+    @apply px-3 py-1.5 text-[13px];
+    color: var(--text-secondary);
+    line-height: 1.3;
+  }
+}
+
+/* ============================================================
+   Component Classes — Forms
+   ============================================================ */
+
+@layer components {
+  .form-group {
+    @apply mb-4;
+  }
+
+  .form-group label {
+    @apply mb-1.5 block text-sm font-medium;
+    color: var(--text-secondary);
+  }
+
+  .form-input {
+    @apply w-full rounded-lg border px-3 py-2 text-sm;
+    background: var(--bg-input);
+    border-color: var(--border);
+    color: var(--text-primary);
+  }
+
+  .form-input:focus {
+    @apply outline-none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-light);
+  }
+
+  .form-input::placeholder {
+    color: var(--text-muted);
+  }
+}
+
+/* ============================================================
+   Component Classes — Icon Buttons (nav-icon-btn)
+   ============================================================ */
+
+@layer components {
+  .nav-icon-btn {
+    @apply relative inline-flex items-center justify-center w-9 h-9 rounded-lg;
+    color: var(--text-muted);
+    transition: background-color 0.2s, color 0.2s;
+  }
+
+  .nav-icon-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+}
+
+/* ============================================================
+   Component Classes — Modals
+   ============================================================ */
+
+@layer components {
+  .modal-overlay {
+    @apply fixed inset-0 z-50 flex items-center justify-center p-4;
+    background: var(--modal-overlay);
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.2s ease;
+  }
+
+  .modal-content {
+    @apply w-full max-w-md rounded-xl p-6 shadow-xl;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: scaleIn 0.2s ease;
+  }
+}
+
+/* ============================================================
+   Component Classes — Navigation Links
+   ============================================================ */
+
+@layer components {
+  .nav-link {
+    @apply flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-inherit no-underline;
+    color: var(--text-secondary);
+    transition: background-color 0.2s, color 0.2s;
+  }
+
+  .nav-link:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+
+  .nav-link.active {
+    background: var(--accent);
+    color: white;
+  }
+}
+
+/* ============================================================
+   Component Classes — Spinner
+   ============================================================ */
+
+@layer components {
+  .spinner {
+    @apply animate-spin;
+    transition: none;
+  }
+}
+
+/* ============================================================
+   Animations
+   ============================================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================
+   View Transitions API — Theme Ripple
+   ============================================================ */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
+::view-transition-new(root) {
+  clip-path: circle(0 at var(--tx, 50%) var(--ty, 50%));
+  animation: theme-reveal 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes theme-reveal {
+  to {
+    clip-path: circle(150% at var(--tx, 50%) var(--ty, 50%));
+  }
+}
+
+/* ============================================================
+   Toast Animations
+   ============================================================ */
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
