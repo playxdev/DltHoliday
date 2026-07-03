@@ -15,7 +15,8 @@
 
 ## Planned
 
-- [ ] Authentication — login page + JWT/session
+- [x] Authentication — login page + JWT/session (user + password + token)
+- [x] Cloudflare Pages support — OpenNext adapter + cross-origin auth
 - [ ] Role-based access — admin vs read-only
 - [ ] Bulk delete — select multiple rows and deactivate
 - [ ] Data export — download filtered results as CSV/XLSX
