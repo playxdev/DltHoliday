@@ -1,6 +1,10 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import type { ApiResponse, DashboardStats } from "@/types";
 import StatCard from "@/components/stat-card";
-import { cookies } from "next/headers";
+import { fetchWithAuth } from "@/lib/auth-store";
 import {
   CalendarDays,
   CheckCircle2,
@@ -9,28 +13,8 @@ import {
   Plus,
   Pencil,
   Ban,
+  Loader2,
 } from "lucide-react";
-
-async function fetchDashboard(): Promise<DashboardStats> {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const cookieStore = await cookies();
-  const cookieHeader = cookieStore
-    .getAll()
-    .map((c) => `${c.name}=${c.value}`)
-    .join("; ");
-  const res = await fetch(`${baseUrl}/api/dashboard`, {
-    cache: "no-store",
-    headers: { Cookie: cookieHeader },
-  });
-
-  if (!res.ok) throw new Error("Failed to fetch dashboard data");
-
-  const json: ApiResponse<DashboardStats> = await res.json();
-  if (!json.success || !json.data) {
-    throw new Error(json.error || "Failed to load dashboard");
-  }
-  return json.data;
-}
 
 function formatDateTime(dateStr: string): string {
   if (!dateStr) return "-";
@@ -59,21 +43,47 @@ const actionStyles: Record<string, { icon: React.ReactNode; badge: string }> = {
   },
 };
 
-export default async function DashboardPage() {
-  let stats: DashboardStats;
-  let error: string | null = null;
+export default function DashboardPage() {
+  const router = useRouter();
+  const [stats, setStats] = useState<DashboardStats>({
+    total: 0,
+    active: 0,
+    inactive: 0,
+    upcoming: 0,
+    activityLog: [],
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  try {
-    stats = await fetchDashboard();
-  } catch (err) {
-    error = err instanceof Error ? err.message : "Failed to load dashboard";
-    stats = {
-      total: 0,
-      active: 0,
-      inactive: 0,
-      upcoming: 0,
-      activityLog: [],
-    };
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await fetchWithAuth("/api/dashboard");
+        if (res.status === 401) {
+          router.push("/login");
+          return;
+        }
+        if (!res.ok) throw new Error("Failed to fetch dashboard data");
+        const json: ApiResponse<DashboardStats> = await res.json();
+        if (!json.success || !json.data) {
+          throw new Error(json.error || "Failed to load dashboard");
+        }
+        setStats(json.data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load dashboard");
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [router]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-32">
+        <Loader2 size={32} className="spinner text-[var(--accent)]" />
+      </div>
+    );
   }
 
   return (

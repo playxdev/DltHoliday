@@ -3,6 +3,7 @@
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Shield, Loader2 } from "lucide-react";
+import { setStoredSession, getApiUrl } from "@/lib/auth-store";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,7 +19,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/login", {
+      const res = await fetch(getApiUrl("/api/auth/login"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password, token }),
@@ -31,6 +32,7 @@ export default function LoginPage() {
         return;
       }
 
+      setStoredSession({ token: data.token, username });
       router.push("/dashboard");
     } catch {
       setError("Network error. Please try again.");

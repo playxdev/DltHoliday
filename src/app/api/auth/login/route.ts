@@ -21,9 +21,9 @@ export async function POST(request: Request) {
       );
     }
 
-    await createSession(username);
+    const jwt = await createSession(username);
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, token: jwt });
   } catch (error) {
     return NextResponse.json(
       { success: false, error: "Login failed" },

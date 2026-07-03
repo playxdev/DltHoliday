@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, Search, ChevronLeft, ChevronRight, Upload, Download } from "lucide-react";
 import type { Holiday, HolidayInput, PaginatedResponse, ApiResponse } from "@/types";
 import HolidayTable from "@/components/holiday-table";
@@ -8,8 +9,10 @@ import HolidayForm from "@/components/holiday-form";
 import DeleteDialog from "@/components/delete-dialog";
 import ImportDialog from "@/components/import-dialog";
 import { showToast } from "@/components/toast";
+import { fetchWithAuth, getApiUrl } from "@/lib/auth-store";
 
 export default function HolidaysPage() {
+  const router = useRouter();
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -27,7 +30,7 @@ export default function HolidaysPage() {
     const params = new URLSearchParams();
     if (search) params.set("search", search);
     if (statusFilter) params.set("status", statusFilter);
-    window.open(`/api/holidays/export?${params.toString()}`, "_blank");
+    window.open(getApiUrl(`/api/holidays/export?${params.toString()}`), "_blank");
   };
 
   const [deleteTarget, setDeleteTarget] = useState<Holiday | null>(null);
@@ -43,7 +46,11 @@ export default function HolidaysPage() {
       if (search) params.set("search", search);
       if (statusFilter) params.set("status", statusFilter);
 
-      const res = await fetch(`/api/holidays?${params.toString()}`);
+      const res = await fetchWithAuth(`/api/holidays?${params.toString()}`);
+      if (res.status === 401) {
+        router.push("/login");
+        return;
+      }
       const json: PaginatedResponse<Holiday> = await res.json();
 
       if (!json.success) {
@@ -58,7 +65,7 @@ export default function HolidaysPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, search, statusFilter]);
+  }, [page, search, statusFilter, router]);
 
   useEffect(() => {
     fetchHolidays();
@@ -66,9 +73,8 @@ export default function HolidaysPage() {
 
   const handleCreate = async (data: HolidayInput) => {
     setSubmitting(true);
-    const res = await fetch("/api/holidays", {
+    const res = await fetchWithAuth("/api/holidays", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
     const json: ApiResponse<Holiday> = await res.json();
@@ -86,7 +92,7 @@ export default function HolidaysPage() {
     if (!deleteTarget) return;
     setDeleting(true);
     try {
-      const res = await fetch(`/api/holidays/${deleteTarget.holiday_id}`, {
+      const res = await fetchWithAuth(`/api/holidays/${deleteTarget.holiday_id}`, {
         method: "DELETE",
       });
       const json: ApiResponse<null> = await res.json();

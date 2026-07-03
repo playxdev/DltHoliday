@@ -7,6 +7,7 @@ import Link from "next/link";
 import type { Holiday, HolidayInput, ApiResponse } from "@/types";
 import HolidayForm from "@/components/holiday-form";
 import { showToast } from "@/components/toast";
+import { fetchWithAuth } from "@/lib/auth-store";
 
 export default function EditHolidayPage({
   params,
@@ -24,7 +25,7 @@ export default function EditHolidayPage({
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch(`/api/holidays/${id}`);
+        const res = await fetchWithAuth(`/api/holidays/${id}`);
         const json: ApiResponse<Holiday> = await res.json();
         if (!json.success || !json.data) {
           throw new Error(json.error || "Holiday not found");
@@ -41,9 +42,8 @@ export default function EditHolidayPage({
 
   const handleSubmit = async (data: HolidayInput) => {
     setSubmitting(true);
-    const res = await fetch(`/api/holidays/${id}`, {
+    const res = await fetchWithAuth(`/api/holidays/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
     const json: ApiResponse<Holiday> = await res.json();
