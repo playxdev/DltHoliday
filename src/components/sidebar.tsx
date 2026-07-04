@@ -9,7 +9,6 @@ import {
   Loader2,
 } from "lucide-react";
 import { useState } from "react";
-import { setStoredSession } from "@/lib/auth-store";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -33,7 +32,6 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
     } catch {
       // ignore
     }
-    setStoredSession(null);
     router.push("/login");
   }
 

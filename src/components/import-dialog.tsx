@@ -2,7 +2,6 @@
 
 import { useState, useRef, useCallback } from "react";
 import { Upload, FileSpreadsheet, X, Check, AlertTriangle } from "lucide-react";
-import { fetchWithAuth } from "@/lib/auth-store";
 
 interface ImportResult {
   success: boolean;
@@ -53,7 +52,7 @@ export default function ImportDialog({ onClose, onImported }: ImportDialogProps)
     formData.append("replaceAll", String(replaceAll));
 
     try {
-      const res = await fetchWithAuth("/api/holidays/import", {
+      const res = await fetch("/api/holidays/import", {
         method: "POST",
         body: formData,
       });

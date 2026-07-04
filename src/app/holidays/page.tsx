@@ -9,7 +9,6 @@ import HolidayForm from "@/components/holiday-form";
 import DeleteDialog from "@/components/delete-dialog";
 import ImportDialog from "@/components/import-dialog";
 import { showToast } from "@/components/toast";
-import { fetchWithAuth, getApiUrl } from "@/lib/auth-store";
 
 export default function HolidaysPage() {
   const router = useRouter();
@@ -30,7 +29,7 @@ export default function HolidaysPage() {
     const params = new URLSearchParams();
     if (search) params.set("search", search);
     if (statusFilter) params.set("status", statusFilter);
-    window.open(getApiUrl(`/api/holidays/export?${params.toString()}`), "_blank");
+    window.open(`/api/holidays/export?${params.toString()}`, "_blank");
   };
 
   const [deleteTarget, setDeleteTarget] = useState<Holiday | null>(null);
@@ -46,7 +45,7 @@ export default function HolidaysPage() {
       if (search) params.set("search", search);
       if (statusFilter) params.set("status", statusFilter);
 
-      const res = await fetchWithAuth(`/api/holidays?${params.toString()}`);
+      const res = await fetch(`/api/holidays?${params.toString()}`);
       if (res.status === 401) {
         router.push("/login");
         return;
@@ -73,7 +72,7 @@ export default function HolidaysPage() {
 
   const handleCreate = async (data: HolidayInput) => {
     setSubmitting(true);
-    const res = await fetchWithAuth("/api/holidays", {
+    const res = await fetch("/api/holidays", {
       method: "POST",
       body: JSON.stringify(data),
     });
@@ -92,7 +91,7 @@ export default function HolidaysPage() {
     if (!deleteTarget) return;
     setDeleting(true);
     try {
-      const res = await fetchWithAuth(`/api/holidays/${deleteTarget.holiday_id}`, {
+      const res = await fetch(`/api/holidays/${deleteTarget.holiday_id}`, {
         method: "DELETE",
       });
       const json: ApiResponse<null> = await res.json();

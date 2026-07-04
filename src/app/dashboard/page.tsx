@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { ApiResponse, DashboardStats } from "@/types";
 import StatCard from "@/components/stat-card";
-import { fetchWithAuth } from "@/lib/auth-store";
 import {
   CalendarDays,
   CheckCircle2,
@@ -58,7 +57,7 @@ export default function DashboardPage() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetchWithAuth("/api/dashboard");
+        const res = await fetch("/api/dashboard");
         if (res.status === 401) {
           router.push("/login");
           return;
