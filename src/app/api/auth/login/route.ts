@@ -26,7 +26,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, token: jwt });
   } catch (error) {
     return NextResponse.json(
-      { success: false, error: "Login failed" },
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Login failed",
+      },
       { status: 500 }
     );
   }
