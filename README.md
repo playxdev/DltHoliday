@@ -76,7 +76,7 @@ src/
 ├── middleware.ts            # Route protection (JWT verify)
 ├── components/
 │   ├── app-shell.tsx        # Sidebar + Header + Main + Footer
-│   ├── sidebar.tsx          # Collapsible nav + logout
+│   ├── sidebar.tsx          # Collapsible nav, session-aware user display, logout
 │   ├── header.tsx           # Top bar: hamburger, title, theme toggle
 │   ├── footer.tsx           # Copyright, version, health check
 │   ├── layout-wrapper.tsx   # Handles login vs app layout
