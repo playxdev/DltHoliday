@@ -8,8 +8,7 @@ import {
   LogOut,
   Loader2,
 } from "lucide-react";
-import { useState } from "react";
-import { getStoredSession, setStoredSession } from "@/lib/auth-store";
+import { useState, useEffect } from "react";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -25,8 +24,19 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
-  const session = getStoredSession();
-  const username = session?.username || "Admin";
+  const [username, setUsername] = useState("Admin");
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data?.username) {
+          setUsername(data.data.username);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const avatarLetter = username.charAt(0).toUpperCase();
 
   async function handleLogout() {
