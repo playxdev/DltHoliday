@@ -33,7 +33,7 @@ export default function Footer() {
         border-t border-[var(--border)] bg-[var(--bg-surface)]"
     >
       <span className="text-xs text-[var(--text-muted)]">
-        &copy; PlayDevX &middot; v1.0.0
+        &copy; PlayDevX &middot; v1.3.0
       </span>
       <span
         id="system-status"
