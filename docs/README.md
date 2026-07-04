@@ -11,10 +11,10 @@ Central Admin Web Application for managing holidays in the DLT system.
 | Styling | Tailwind CSS 3.4 |
 | Theme | `data-theme` attribute + CSS custom properties |
 | Database | SQL Server via `mssql` |
-| Auth | JWT (jose) + httpOnly cookie + Bearer token |
+| Auth | JWT (jose) + httpOnly cookie |
 | Icons | Lucide React |
 | Import/Export | SheetJS (xlsx) |
-| Deployment | Node.js, Docker, Cloudflare Pages (OpenNext) |
+| Deployment | Vercel (Node.js runtime) |
 
 ## Quick Start
 
@@ -28,30 +28,19 @@ npm run dev                   # http://localhost:3000
 
 Login requires three fields: **username** + **password** + **security token**.
 
-After successful login, auth supports two modes:
-- **Same-origin**: httpOnly JWT cookie (standard Next.js deployment)
-- **Cross-origin**: Bearer token in `Authorization` header (Cloudflare Pages → separate API server)
+Authentication uses httpOnly JWT cookies. After login, all API calls include the cookie automatically (same-origin).
 
 ## Environment Variables
 
 ```bash
 # Database
 SQLSERVER_DSN="sqlserver://user:pass@host:1433?database=DLT&encrypt=disable"
-# OR individual params
-DB_SERVER="host"
-DB_PORT="1433"
-DB_NAME="DLT"
-DB_USER="sa"
-DB_PASSWORD="your_db_password"
 
 # Auth
 AUTH_USERNAME="admin"
 AUTH_PASSWORD="your_admin_password"
 AUTH_SECRET_TOKEN="your_security_token"
 JWT_SIGNING_KEY="your_jwt_signing_key"
-
-# API URL (for Cloudflare Pages, empty = same-origin)
-NEXT_PUBLIC_API_URL=""
 ```
 
 ## Project Structure
@@ -62,7 +51,6 @@ src/
 │   ├── layout.tsx           # Root layout (Google Sans, LayoutWrapper)
 │   ├── page.tsx             # / → redirect to /dashboard
 │   ├── globals.css          # CSS variables, component classes, animations
-│   ├── loading.tsx          # Spinner page loader
 │   ├── login/
 │   │   └── page.tsx         # Auth: username + password + token
 │   ├── dashboard/
@@ -100,7 +88,6 @@ src/
 │   └── toast.tsx            # Notification system
 ├── lib/
 │   ├── auth.ts              # JWT sign/verify, credential validation
-│   ├── auth-store.ts        # Client-side auth state (localStorage)
 │   ├── db.ts                # mssql connection pool + query helpers
 │   └── db-config.ts         # Env var parser
 └── types/
@@ -116,10 +103,63 @@ The app reads credentials in priority order:
 
 ## Deployment
 
-See [docs/DEPLOY.md](docs/DEPLOY.md) for:
-- Node.js server (full app)
-- Cloudflare Pages (frontend) + Node.js server (API)
-- Docker
+### Why Vercel (not Cloudflare Pages)
+
+This project uses the `mssql` package to connect to Microsoft SQL Server. The `mssql` driver opens raw TCP sockets (TDS protocol) to the database — this requires a full Node.js runtime.
+
+Cloudflare Workers / Pages use V8 isolates with a sandboxed fetch-only network layer. They **cannot** open TCP connections or use native Node.js modules like `mssql`. Attempting to deploy API routes to Cloudflare Pages fails with:
+
+> `The following routes were not configured to run with the Edge Runtime`
+
+Even switching to `runtime: "edge"` does not help — the `mssql` driver simply cannot function in Workers.
+
+**Vercel** natively supports Next.js with the Node.js runtime (`runtime: "nodejs"`), which is required for the database connection. All API routes are already configured with `export const runtime = "nodejs"` and work out of the box.
+
+### Deploy to Vercel
+
+**1. Install Vercel CLI**
+
+```bash
+npm i -g vercel
+```
+
+**2. Deploy**
+
+```bash
+cd WEBAPP
+npx vercel
+```
+
+Follow the prompts. Vercel auto-detects Next.js and configures the build.
+
+**3. Set Environment Variables**
+
+In the Vercel dashboard (https://vercel.com/ → your project → Settings → Environment Variables):
+
+| Name | Value | Environment |
+|------|-------|-------------|
+| `SQLSERVER_DSN` | `sqlserver://user:pass@host:1433?database=DLT&encrypt=disable` | Production |
+| `AUTH_USERNAME` | `admin` | Production |
+| `AUTH_PASSWORD` | `your_password` | Production |
+| `AUTH_SECRET_TOKEN` | `your_token` | Production |
+| `JWT_SIGNING_KEY` | `your_signing_key` | Production |
+
+> **Important:** Your SQL Server must be publicly accessible from Vercel's build servers (AWS us-east-1). If behind a firewall, whitelist Vercel's IP ranges or use a tunnel.
+
+**4. Redeploy**
+
+```bash
+npx vercel --prod
+```
+
+**5. Verify**
+
+```bash
+curl https://your-app.vercel.app/api/health
+# {"status":"ok","database":{"connected":true,...}}
+```
+
+See [docs/DEPLOY.md](docs/DEPLOY.md) for additional deployment options (Docker, self-hosted).
 
 ## Design System
 
@@ -142,6 +182,4 @@ npm run dev      # Development server
 npm run build    # Production build
 npm run start    # Start production server
 npm run lint     # Run linter
-npm run preview  # Cloudflare Pages local preview
-npm run deploy   # Cloudflare Pages deploy
 ```

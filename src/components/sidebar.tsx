@@ -36,7 +36,6 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
     } catch {
       // ignore
     }
-    setStoredSession(null);
     router.push("/login");
   }
 

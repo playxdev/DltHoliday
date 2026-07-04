@@ -6,7 +6,7 @@ const JWT_COOKIE = "dlt_auth_token";
 
 const PUBLIC_PATHS = new Set(["/login"]);
 
-const PUBLIC_API_PREFIXES = ["/api/auth"];
+const PUBLIC_API_PREFIXES = ["/api/auth", "/api/health"];
 
 function getJwtSigningKey(): Uint8Array {
   const raw = process.env.JWT_SIGNING_KEY || process.env.AUTH_SECRET_TOKEN;

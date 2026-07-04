@@ -1,10 +1,10 @@
 import { SignJWT, jwtVerify } from "jose";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 
 const JWT_COOKIE = "dlt_auth_token";
 const JWT_EXPIRY = "8h";
 
-export function getJwtSigningKey(): Uint8Array {
+function getJwtSigningKey(): Uint8Array {
   const raw = process.env.JWT_SIGNING_KEY || process.env.AUTH_SECRET_TOKEN;
   if (!raw) {
     throw new Error("JWT_SIGNING_KEY or AUTH_SECRET_TOKEN env is not set");
@@ -49,18 +49,14 @@ export async function createSession(username: string): Promise<string> {
     .setExpirationTime(JWT_EXPIRY)
     .sign(key);
 
-  try {
-    const cookieStore = await cookies();
-    cookieStore.set(JWT_COOKIE, token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 8 * 60 * 60,
-    });
-  } catch {
-    // cookies() throws outside request context — fine
-  }
+  const cookieStore = await cookies();
+  cookieStore.set(JWT_COOKIE, token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 8 * 60 * 60,
+  });
 
   return token;
 }
@@ -69,8 +65,12 @@ export interface Session {
   username: string;
 }
 
-export async function verifyToken(token: string): Promise<Session | null> {
+export async function getSession(): Promise<Session | null> {
   try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get(JWT_COOKIE)?.value;
+    if (!token) return null;
+
     const key = getJwtSigningKey();
     const { payload } = await jwtVerify(token, key);
     return { username: payload.username as string };
@@ -79,40 +79,13 @@ export async function verifyToken(token: string): Promise<Session | null> {
   }
 }
 
-export async function getSession(): Promise<Session | null> {
-  try {
-    const headerStore = await headers();
-    const authHeader = headerStore.get("authorization");
-    if (authHeader?.startsWith("Bearer ")) {
-      const token = authHeader.slice(7);
-      const session = await verifyToken(token);
-      if (session) return session;
-    }
-  } catch {
-    // headers() may throw outside request context
-  }
-
-  try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get(JWT_COOKIE)?.value;
-    if (!token) return null;
-    return await verifyToken(token);
-  } catch {
-    return null;
-  }
-}
-
 export async function destroySession(): Promise<void> {
-  try {
-    const cookieStore = await cookies();
-    cookieStore.set(JWT_COOKIE, "", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 0,
-    });
-  } catch {
-    // ignore
-  }
+  const cookieStore = await cookies();
+  cookieStore.set(JWT_COOKIE, "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
 }
