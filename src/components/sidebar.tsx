@@ -9,7 +9,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useState } from "react";
-import { setStoredSession } from "@/lib/auth-store";
+import { getStoredSession, setStoredSession } from "@/lib/auth-store";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -25,6 +25,9 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
+  const session = getStoredSession();
+  const username = session?.username || "Admin";
+  const avatarLetter = username.charAt(0).toUpperCase();
 
   async function handleLogout() {
     setLoggingOut(true);
@@ -95,11 +98,11 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
           <div className="px-5 py-4 border-t border-[var(--border)]">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shrink-0">
-                <span className="text-white font-semibold text-xs">A</span>
+                <span className="text-white font-semibold text-xs">{avatarLetter}</span>
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-[var(--text-primary)] truncate">
-                  Admin
+                  {username}
                 </p>
                 <p className="text-xs text-[var(--text-muted)]">
                   Administrator
